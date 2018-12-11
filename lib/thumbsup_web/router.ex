@@ -18,6 +18,7 @@ defmodule ThumbsupWeb.Router do
 
     get "/", PageController, :index
     resources "/users", UserController
+    resources "/quetsions", QuestionController
   end
 
   # Other scopes may use custom stacks.

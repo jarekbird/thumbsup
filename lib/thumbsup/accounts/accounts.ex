@@ -101,16 +101,4 @@ defmodule Thumbsup.Accounts do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
-
-  alias Thumbsup.Accounts.Question
-
-  @doc """
-  Returns the list of questions.
-
-  ## Examples
-
-      iex> list_questions()
-      [%Question{}, ...]
-
-  """
 end
