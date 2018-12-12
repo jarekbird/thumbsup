@@ -18,4 +18,7 @@ Repo.insert! %User{first_name: "Jarek", last_name: "Bird", phone_number: "+13853
 
 question = Repo.insert! %Question{text: "Do you feel respected by others at work?"}
 Repo.insert! %Prequestion{text: "R-E-S-P-E-C-T! Answer this real quick for me!", question_id: question.id}
+Repo.insert! %Prequestion{text: "You deserve all the respect in the world.", question_id: question.id}
+Repo.insert! %Prequestion{text: "What's with kids today? No respect!", question_id: question.id}
+Repo.insert! %Prequestion{text: "Put some respeck on it!", question_id: question.id}
 
