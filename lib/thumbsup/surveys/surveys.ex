@@ -51,12 +51,15 @@ defmodule Thumbsup.Surveys do
 
   def create_conversation(attrs \\ %{}) do
     %Conversation{}
-    |> Conversation.changeset(attrs)
-    |> set_random_conversation_values()
+    |> Conversation.unvalidated_changeset(attrs)
+    |> put_change(:question_id, determine_random_question.id)
+    |> set_random_prequestion()
+    |> Conversation.validate_conversation()
     |> Repo.insert()
     |> elem(1)
     |> Repo.preload(:question)
     |> Repo.preload(:user)
+    |> Repo.preload(:prequestion)
     |> send_first_conversation_message()
     |> increment_conversation_state()
   end
@@ -70,7 +73,8 @@ defmodule Thumbsup.Surveys do
 
   def increment_conversation_state(%Thumbsup.Surveys.Conversation{} = conversation) do
     conversation
-    |> Conversation.changeset(%{state: conversation.state + 1})
+    |> Conversation.unvalidated_changeset(%{state: conversation.state + 1})
+    |> Conversation.validate_conversation()
     |> Repo.update()
   end
 
@@ -88,9 +92,14 @@ defmodule Thumbsup.Surveys do
     |> Enum.random()
   end
 
-  def set_random_conversation_values(%Ecto.Changeset{} = changeset) do
+  def determine_random_question() do
+    list_questions
+    |> Enum.random()
+  end
+
+  def set_random_prequestion(%Ecto.Changeset{} = changeset) do
     changeset
-    |> put_change(:prequestion, determine_random_prequestion(changeset))
+    |> put_change(:prequestion_id, determine_random_prequestion(changeset).id)
   end
 
   def update_conversation(%Conversation{} = conversation, attrs) do

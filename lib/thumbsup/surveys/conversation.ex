@@ -15,9 +15,13 @@ defmodule Thumbsup.Surveys.Conversation do
   end
 
   @doc false
-  def changeset(conversation, attrs) do
+  def unvalidated_changeset(conversation, attrs) do
     conversation
-    |> cast(attrs, [:state, :question_id, :user_id])
-    |> validate_required([:state, :question_id, :user_id])
+    |> cast(attrs, [:state, :question_id, :user_id, :prequestion_id])
+  end
+
+  def validate_conversation(conversation) do
+    conversation
+    |> validate_required([:state, :question_id, :user_id, :prequestion_id])
   end
 end

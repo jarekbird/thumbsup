@@ -20,5 +20,12 @@ question = Repo.insert! %Question{text: "Do you feel respected by others at work
 Repo.insert! %Prequestion{text: "R-E-S-P-E-C-T! Answer this real quick for me!", question_id: question.id}
 Repo.insert! %Prequestion{text: "You deserve all the respect in the world.", question_id: question.id}
 Repo.insert! %Prequestion{text: "What's with kids today? No respect!", question_id: question.id}
-Repo.insert! %Prequestion{text: "Put some respeck on it!", question_id: question.id}
+Repo.insert! %Prequestion{text: "Put some respeck on itf!", question_id: question.id}
+
+question = Repo.insert! %Question{text: "Do you feel you receive fair compensation at work?"}
+Repo.insert! %Prequestion{text: "Make it rain?", question_id: question.id}
+Repo.insert! %Prequestion{text: "Why is money called dough? We all knead it!", question_id: question.id}
+Repo.insert! %Prequestion{text: "You're one step away from being rich! All you nee dnow is money! So...", question_id: question.id}
+Repo.insert! %Prequestion{text: "I'm on a new diet called, \" I have five dollars until friday.\" How about you?", question_id: question.id}
+
 
