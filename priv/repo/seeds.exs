@@ -26,6 +26,6 @@ question = Repo.insert! %Question{text: "Do you feel you receive fair compensati
 Repo.insert! %Prequestion{text: "Make it rain?", question_id: question.id}
 Repo.insert! %Prequestion{text: "Why is money called dough? We all knead it!", question_id: question.id}
 Repo.insert! %Prequestion{text: "You're one step away from being rich! All you need now is money! So...", question_id: question.id}
-Repo.insert! %Prequestion{text: "I'm on a new diet called, \" I have five dollars until friday.\" How about you?", question_id: question.id}
+Repo.insert! %Prequestion{text: "I'm on a new diet called: \"I have five dollars until friday.\" How about you?", question_id: question.id}
 
 
