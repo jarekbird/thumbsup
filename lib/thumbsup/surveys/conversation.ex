@@ -20,7 +20,7 @@ defmodule Thumbsup.Surveys.Conversation do
     |> cast(attrs, [:state, :question_id, :user_id, :prequestion_id])
   end
 
-  def validate_conversation(conversation) do
+  def validate_changeset(conversation) do
     conversation
     |> validate_required([:state, :question_id, :user_id, :prequestion_id])
   end
