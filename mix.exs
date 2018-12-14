@@ -42,6 +42,7 @@ defmodule Thumbsup.Mixfile do
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 1.0"},
       {:httpotion, "~> 3.1.0"},
+      {:ecto_enum, "~> 1.0"},
       {:jason, "~> 1.1"}
     ]
   end

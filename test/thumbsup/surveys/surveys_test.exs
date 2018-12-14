@@ -182,4 +182,66 @@ defmodule Thumbsup.SurveysTest do
       assert %Ecto.Changeset{} = Surveys.change_prequestion(prequestion)
     end
   end
+
+  describe "incoming_texts" do
+    alias Thumbsup.Surveys.IncomingText
+
+    @valid_attrs %{body: "some body", phone_number: "some phone_number"}
+    @update_attrs %{body: "some updated body", phone_number: "some updated phone_number"}
+    @invalid_attrs %{body: nil, phone_number: nil}
+
+    def incoming_text_fixture(attrs \\ %{}) do
+      {:ok, incoming_text} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Surveys.create_incoming_text()
+
+      incoming_text
+    end
+
+    test "list_incoming_texts/0 returns all incoming_texts" do
+      incoming_text = incoming_text_fixture()
+      assert Surveys.list_incoming_texts() == [incoming_text]
+    end
+
+    test "get_incoming_text!/1 returns the incoming_text with given id" do
+      incoming_text = incoming_text_fixture()
+      assert Surveys.get_incoming_text!(incoming_text.id) == incoming_text
+    end
+
+    test "create_incoming_text/1 with valid data creates a incoming_text" do
+      assert {:ok, %IncomingText{} = incoming_text} = Surveys.create_incoming_text(@valid_attrs)
+      assert incoming_text.body == "some body"
+      assert incoming_text.phone_number == "some phone_number"
+    end
+
+    test "create_incoming_text/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Surveys.create_incoming_text(@invalid_attrs)
+    end
+
+    test "update_incoming_text/2 with valid data updates the incoming_text" do
+      incoming_text = incoming_text_fixture()
+      assert {:ok, incoming_text} = Surveys.update_incoming_text(incoming_text, @update_attrs)
+      assert %IncomingText{} = incoming_text
+      assert incoming_text.body == "some updated body"
+      assert incoming_text.phone_number == "some updated phone_number"
+    end
+
+    test "update_incoming_text/2 with invalid data returns error changeset" do
+      incoming_text = incoming_text_fixture()
+      assert {:error, %Ecto.Changeset{}} = Surveys.update_incoming_text(incoming_text, @invalid_attrs)
+      assert incoming_text == Surveys.get_incoming_text!(incoming_text.id)
+    end
+
+    test "delete_incoming_text/1 deletes the incoming_text" do
+      incoming_text = incoming_text_fixture()
+      assert {:ok, %IncomingText{}} = Surveys.delete_incoming_text(incoming_text)
+      assert_raise Ecto.NoResultsError, fn -> Surveys.get_incoming_text!(incoming_text.id) end
+    end
+
+    test "change_incoming_text/1 returns a incoming_text changeset" do
+      incoming_text = incoming_text_fixture()
+      assert %Ecto.Changeset{} = Surveys.change_incoming_text(incoming_text)
+    end
+  end
 end

@@ -9,7 +9,8 @@ defmodule Thumbsup.Surveys do
   alias Thumbsup.Surveys.Prequestion
   alias Thumbsup.Surveys.Conversation
   alias Thumbsup.Surveys.Question
-  alias Thumbsup.Surveys.Bandwidth
+  alias Thumbsup.Surveys.SetConversationState
+  alias Thumbsup.Surveys.ConversationEngine
 
   def list_questions do
     Repo.all(Question)
@@ -18,7 +19,6 @@ defmodule Thumbsup.Surveys do
   def get_question!(id) do 
     Question
     |> Repo.get!(id)
-    |> Repo.preload(:prequestions)
   end
 
   def create_question(attrs \\ %{}) do
@@ -52,15 +52,10 @@ defmodule Thumbsup.Surveys do
   def create_conversation(attrs \\ %{}) do
     %Conversation{}
     |> Conversation.unvalidated_changeset(attrs)
-    |> put_change(:question_id, determine_random_question.id)
-    |> set_random_prequestion()
+    |> put_change(:question_id, determine_random_question().id)
     |> repo_insert_conversation()
     |> elem(1)
-    |> Repo.preload(:question)
-    |> Repo.preload(:user)
-    |> Repo.preload(:prequestion)
-    |> send_first_conversation_message()
-    |> increment_conversation_state()
+    |> ConversationEngine.progress_conversation()
   end
 
   def repo_insert_conversation(%Ecto.Changeset{} = changeset) do
@@ -69,47 +64,30 @@ defmodule Thumbsup.Surveys do
     |> Repo.insert()
   end
 
-  def send_first_conversation_message(%Thumbsup.Surveys.Conversation{} = conversation) do
-    conversation
-    |> conversation_first_message
-    |> Bandwidth.send_message(conversation.user)
-    conversation
-  end
-
-  def increment_conversation_state(%Thumbsup.Surveys.Conversation{} = conversation) do
-    conversation
-    |> Conversation.unvalidated_changeset(%{state: conversation.state + 1})
-    |> repo_update_conversation()
-  end
-
-  def conversation_first_message(%Thumbsup.Surveys.Conversation{} = conversation) do
-    conversation.prequestion.text <> " " <> conversation.question.text
-  end
-
   def determine_random_prequestion(%Ecto.Changeset{} = changeset) do
-    get_question!(changeset.changes.question_id).prequestions
-    |> Enum.random()
-  end
-
-  def determine_random_prequestion(%Thumbsup.Surveys.Conversation{} = conversation) do
-    get_question!(conversation.question.id).prequestions
+    changeset.changes.question_id
+    |> get_question!()
+    |> Repo.preload(:prequestions).prequestions
     |> Enum.random()
   end
 
   def determine_random_question() do
-    list_questions
+    list_questions()
     |> Enum.random()
   end
 
   def set_random_prequestion(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> put_change(:prequestion_id, determine_random_prequestion(changeset).id)
+    put_change(changeset, :prequestion_id, determine_random_prequestion(changeset).id)
+  end
+
+  def progress_conversation(%Conversation{} = conversation) do
+    
   end
 
   def update_conversation(%Conversation{} = conversation, attrs) do
     conversation
     |> Conversation.unvalidated_changeset(attrs)
-    |> repo_insert_conversation()
+    |> repo_update_conversation()
   end
 
   def repo_update_conversation(%Ecto.Changeset{} = changeset) do
@@ -150,5 +128,43 @@ defmodule Thumbsup.Surveys do
 
   def change_prequestion(%Prequestion{} = prequestion) do
     Prequestion.changeset(prequestion, %{})
+  end
+
+  alias Thumbsup.Surveys.IncomingText
+
+  def list_incoming_texts do
+    Repo.all(IncomingText)
+  end
+
+  def get_incoming_text!(id), do: Repo.get!(IncomingText, id)
+
+  def create_incoming_text(attrs \\ %{}) do
+    %IncomingText{}
+    |> IncomingText.changeset(attrs)
+    |> Repo.insert()
+    |> elem(1)
+    |> ConversationEngine.determine_incoming_text_conversation()
+    # |> preload(:conversation).conversation
+    # |> progress_conversation()
+  end
+
+  def update_incoming_text(%IncomingText{} = incoming_text, attrs) do
+    incoming_text
+    |> IncomingText.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_incoming_text!(%IncomingText{} = incoming_text, attrs) do
+    incoming_text
+    |> IncomingText.changeset(attrs)
+    |> Repo.update!()
+  end
+
+  def delete_incoming_text(%IncomingText{} = incoming_text) do
+    Repo.delete(incoming_text)
+  end
+
+  def change_incoming_text(%IncomingText{} = incoming_text) do
+    IncomingText.changeset(incoming_text, %{})
   end
 end
