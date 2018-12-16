@@ -6,6 +6,7 @@ defmodule Thumbsup.Repo.Migrations.CreateUsers do
       add :first_name, :string
       add :last_name, :string
       add :phone_number, :string
+      add :welcome_message, :boolean
 
       timestamps()
     end

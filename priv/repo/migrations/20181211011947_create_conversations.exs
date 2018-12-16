@@ -6,6 +6,7 @@ defmodule Thumbsup.Repo.Migrations.CreateConversations do
       add :state, :integer
       add :question_id, references(:questions)
       add :user_id, references(:users)
+      add :positive_sentiment, :boolean
 
       timestamps()
     end

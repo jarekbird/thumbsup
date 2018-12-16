@@ -2,8 +2,8 @@ defmodule Thumbsup.Surveys.IncomingText do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Surveys.Conversation
-  alias Accounts.User
+  alias Thumbsup.Surveys.Conversation
+  alias Thumbsup.Accounts.User
 
 
   schema "incoming_texts" do

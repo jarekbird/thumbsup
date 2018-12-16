@@ -5,7 +5,6 @@ defmodule ThumbsupWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
-    plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
@@ -19,7 +18,7 @@ defmodule ThumbsupWeb.Router do
     get "/", PageController, :index
     resources "/users", UserController
     resources "/questions", QuestionController
-    post "/bandwidth_creation", IncomingTextController, :bandwidth_create
+    post "/bandwidth_create", IncomingTextController, :bandwidth_create
   end
 
   # Other scopes may use custom stacks.

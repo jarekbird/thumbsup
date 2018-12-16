@@ -9,8 +9,9 @@ defmodule Thumbsup.Surveys do
   alias Thumbsup.Surveys.Prequestion
   alias Thumbsup.Surveys.Conversation
   alias Thumbsup.Surveys.Question
-  alias Thumbsup.Surveys.SetConversationState
   alias Thumbsup.Surveys.ConversationEngine
+  alias Thumbsup.Surveys.GifResponse
+  alias Thumbsup.Surveys.GifResponse
 
   def list_questions do
     Repo.all(Question)
@@ -50,11 +51,12 @@ defmodule Thumbsup.Surveys do
   end
 
   def create_conversation(attrs \\ %{}) do
-    %Conversation{}
+    conversation = %Conversation{}
     |> Conversation.unvalidated_changeset(attrs)
     |> put_change(:question_id, determine_random_question().id)
     |> repo_insert_conversation()
     |> elem(1)
+    |> complete_other_conversations()
     |> ConversationEngine.progress_conversation()
   end
 
@@ -143,9 +145,7 @@ defmodule Thumbsup.Surveys do
     |> IncomingText.changeset(attrs)
     |> Repo.insert()
     |> elem(1)
-    |> ConversationEngine.determine_incoming_text_conversation()
-    # |> preload(:conversation).conversation
-    # |> progress_conversation()
+    |> ConversationEngine.link_incoming_text_to_conversation()
   end
 
   def update_incoming_text(%IncomingText{} = incoming_text, attrs) do
@@ -166,5 +166,50 @@ defmodule Thumbsup.Surveys do
 
   def change_incoming_text(%IncomingText{} = incoming_text) do
     IncomingText.changeset(incoming_text, %{})
+  end
+
+  def list_gif_responses do
+    Repo.all(GifResponse)
+  end
+
+  def get_gif_response!(id), do: Repo.get!(GifResponse, id)
+
+  def create_gif_response(attrs \\ %{}) do
+    %GifResponse{}
+    |> GifResponse.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_gif_response(%GifResponse{} = gif_response, attrs) do
+    gif_response
+    |> GifResponse.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_gif_response(%GifResponse{} = gif_response) do
+    Repo.delete(gif_response)
+  end
+
+  def change_gif_response(%GifResponse{} = gif_response) do
+    GifResponse.changeset(gif_response, %{})
+  end
+
+  def determine_incoming_text_conversation(%IncomingText{} = incoming_text) do
+    user = Repo.preload(incoming_text, :user).user
+    Repo.one(from c in Conversation, where: c.state in ["question", "gif_response", "further_feedback"], where: c.user_id == ^user.id)
+  end
+
+  def complete_other_conversations(%Thumbsup.Surveys.Conversation{} = conversation) do
+    user = Repo.preload(conversation, :user).user
+    (from c in Conversation, where: c.user_id == ^user.id, where: c.id != ^conversation.id)
+    |> Repo.update_all(set: [state: "completed"])
+    conversation
+  end
+
+  def question_gif_responses(%Question{} = question, boolean = positive_sentiment) do
+    IO.puts question.id
+    IO.puts positive_sentiment
+    (from g in GifResponse, where: g.question_id == ^question.id, where: g.positive_sentiment == ^positive_sentiment)
+    |> Repo.all()
   end
 end

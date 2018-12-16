@@ -244,4 +244,66 @@ defmodule Thumbsup.SurveysTest do
       assert %Ecto.Changeset{} = Surveys.change_incoming_text(incoming_text)
     end
   end
+
+  describe "gif_responses" do
+    alias Thumbsup.Surveys.GifResponse
+
+    @valid_attrs %{positive_sentiment: true, url: "some url"}
+    @update_attrs %{positive_sentiment: false, url: "some updated url"}
+    @invalid_attrs %{positive_sentiment: nil, url: nil}
+
+    def gif_response_fixture(attrs \\ %{}) do
+      {:ok, gif_response} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Surveys.create_gif_response()
+
+      gif_response
+    end
+
+    test "list_gif_responses/0 returns all gif_responses" do
+      gif_response = gif_response_fixture()
+      assert Surveys.list_gif_responses() == [gif_response]
+    end
+
+    test "get_gif_response!/1 returns the gif_response with given id" do
+      gif_response = gif_response_fixture()
+      assert Surveys.get_gif_response!(gif_response.id) == gif_response
+    end
+
+    test "create_gif_response/1 with valid data creates a gif_response" do
+      assert {:ok, %GifResponse{} = gif_response} = Surveys.create_gif_response(@valid_attrs)
+      assert gif_response.positive_sentiment == true
+      assert gif_response.url == "some url"
+    end
+
+    test "create_gif_response/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Surveys.create_gif_response(@invalid_attrs)
+    end
+
+    test "update_gif_response/2 with valid data updates the gif_response" do
+      gif_response = gif_response_fixture()
+      assert {:ok, gif_response} = Surveys.update_gif_response(gif_response, @update_attrs)
+      assert %GifResponse{} = gif_response
+      assert gif_response.positive_sentiment == false
+      assert gif_response.url == "some updated url"
+    end
+
+    test "update_gif_response/2 with invalid data returns error changeset" do
+      gif_response = gif_response_fixture()
+      assert {:error, %Ecto.Changeset{}} = Surveys.update_gif_response(gif_response, @invalid_attrs)
+      assert gif_response == Surveys.get_gif_response!(gif_response.id)
+    end
+
+    test "delete_gif_response/1 deletes the gif_response" do
+      gif_response = gif_response_fixture()
+      assert {:ok, %GifResponse{}} = Surveys.delete_gif_response(gif_response)
+      assert_raise Ecto.NoResultsError, fn -> Surveys.get_gif_response!(gif_response.id) end
+    end
+
+    test "change_gif_response/1 returns a gif_response changeset" do
+      gif_response = gif_response_fixture()
+      assert %Ecto.Changeset{} = Surveys.change_gif_response(gif_response)
+    end
+  end
 end

@@ -5,23 +5,25 @@ defmodule ThumbsupWeb.IncomingTextController do
   alias Thumbsup.Surveys.IncomingText
   alias Thumbsup.Accounts
 
-  action_fallback ThumbsupWeb.FallbackController
+  # action_fallback ThumbsupWeb.FallbackController
+
+  plug :assign_user
 
   def bandwidth_create(conn, params) do
-    with {:ok, %IncomingText{} = incoming_text} <- Surveys.create_incoming_text(bandwidth_incoming_text_params(params)) do
+    with {:ok, %IncomingText{} = incoming_text} <- Surveys.create_incoming_text(bandwidth_incoming_text_params(conn, params)) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", incoming_text_path(conn, :show, incoming_text))
-      |> render("show.json", incoming_text: incoming_text)
+      |> send_resp(204, "")
     end
   end
 
-  def assign_user(conn, params) do
-    user_id = Accounts.get_user_by_phone_number(params[:from]).id
+  defp assign_user(conn, _extra_params) do
+    params = conn.body_params
+    user_id = Accounts.get_user_by_phone_number(params["from"]).id
     assign(conn, :user_id, user_id)
   end
 
-  def bandwidth_incoming_text_params(params) do
-    %{user_id: params[:user_id], body: params[:text]}
+  defp bandwidth_incoming_text_params(conn, params) do
+    %{user_id: conn.assigns[:user_id], body: params["text"]}
   end
 end
