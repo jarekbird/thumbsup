@@ -5,6 +5,7 @@ defmodule Thumbsup.Surveys.Conversation do
   alias Thumbsup.Surveys.Prequestion
   alias Thumbsup.Accounts.User
   alias Thumbsup.Surveys.GifResponse
+  alias Thumbsup.Accounts.Company
 
   schema "conversations" do
     field :state, ConversationStateEnum, default: :created
@@ -14,6 +15,7 @@ defmodule Thumbsup.Surveys.Conversation do
     belongs_to :prequestion, Prequestion
     belongs_to :user, User
     belongs_to :gif_response, GifResponse
+    belongs_to :company, Company
 
     timestamps()
   end
@@ -21,12 +23,13 @@ defmodule Thumbsup.Surveys.Conversation do
   @doc false
   def unvalidated_changeset(conversation, attrs) do
     conversation
-    |> cast(attrs, [:state, :question_id, :user_id, :prequestion_id, :gif_response_id, :positive_sentiment, :additional_feedback])
+    |> cast(attrs, [:state, :question_id, :user_id, :prequestion_id, :gif_response_id, 
+                    :positive_sentiment, :additional_feedback, :company_id])
   end
 
   def validate_changeset(changeset) do
     changeset
-    |> validate_required([:state, :user_id])
+    |> validate_required([:state, :user_id, :company_id])
   end
 
   def appended_additional_feedback(%Thumbsup.Surveys.Conversation{} = conversation, string = new_feedback) do

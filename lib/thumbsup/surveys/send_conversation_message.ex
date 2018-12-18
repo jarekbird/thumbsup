@@ -34,12 +34,23 @@ defmodule Thumbsup.Surveys.SendConversationMessage do
 
   def question(%Thumbsup.Surveys.Conversation{} = conversation) do
     conversation
+    |> Repo.preload(:company)
     |> question_message()
     |> Bandwidth.send_sms_message(conversation.user)
     conversation
   end
 
   def question_message(%Thumbsup.Surveys.Conversation{} = conversation) do
-    conversation.prequestion.text <> " " <> conversation.question.text
+    inject_company_name_into_prequestion(conversation) <> " " <> inject_company_name_into_question(conversation)
+  end
+
+  def inject_company_name_into_prequestion(%Thumbsup.Surveys.Conversation{} = conversation) do
+    conversation.prequestion.text
+    |> String.replace("***company_name***", conversation.company.name)
+  end
+
+  def inject_company_name_into_question(%Thumbsup.Surveys.Conversation{} = conversation) do
+    conversation.question.text
+    |> String.replace("***company_name***", conversation.company.name)
   end
 end

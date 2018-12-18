@@ -12,6 +12,7 @@ defmodule Thumbsup.Surveys do
   alias Thumbsup.Surveys.ConversationEngine
   alias Thumbsup.Surveys.GifResponse
   alias Thumbsup.Surveys.GifResponse
+  alias Thumbsup.Surveys.IncomingText
 
   def list_questions do
     Repo.all(Question)
@@ -53,11 +54,19 @@ defmodule Thumbsup.Surveys do
   def create_conversation(attrs \\ %{}) do
     conversation = %Conversation{}
     |> Conversation.unvalidated_changeset(attrs)
-    |> put_change(:question_id, determine_random_question().id)
+    |> preset_question()
     |> repo_insert_conversation()
     |> elem(1)
     |> complete_other_conversations()
     |> ConversationEngine.progress_conversation()
+  end
+
+  def preset_question(%Ecto.Changeset{} = changeset) do
+    unless Map.has_key?(changeset.changes, :question_id) do
+      put_change(changeset, :question_id, determine_random_question().id)
+    else
+      changeset
+    end
   end
 
   def repo_insert_conversation(%Ecto.Changeset{} = changeset) do
@@ -131,8 +140,6 @@ defmodule Thumbsup.Surveys do
   def change_prequestion(%Prequestion{} = prequestion) do
     Prequestion.changeset(prequestion, %{})
   end
-
-  alias Thumbsup.Surveys.IncomingText
 
   def list_incoming_texts do
     Repo.all(IncomingText)

@@ -8,18 +8,18 @@ defmodule Thumbsup.Surveys.Bandwidth do
   @bandwidth_url "https://api.catapult.inetwork.com/v1/users/u-pffxsmatqcxm4grkewgl6dq/messages"
 
   def send_sms_message(string = message, %User{} = user) do
-    unless user.welcome_message do
-      send_first_message(user)
-    end
+    # unless user.welcome_message do
+    #   send_first_message(user)
+    # end
     IO.puts message
     Jason.encode!(%{from: @thumbsup_phone_number, to: user.phone_number, text: message})
     |> connect_to_bandwidth()
   end
 
   def send_mms_message(string = message, %User{} = user, media_url) do
-    unless user.welcome_message do
-      send_first_message(user)
-    end
+    # unless user.welcome_message do
+    #   send_first_message(user)
+    # end
     IO.puts message
     IO.puts media_url
     Jason.encode!(%{from: @thumbsup_phone_number, to: user.phone_number, text: message, media: media_url})
